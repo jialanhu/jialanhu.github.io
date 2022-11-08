@@ -1,4 +1,4 @@
-var giscus = function () {
+const giscus = function () {
   const script = document.createElement("script");
   script.type = "text/javascript";
   script.src = "https://giscus.app/client.js";
