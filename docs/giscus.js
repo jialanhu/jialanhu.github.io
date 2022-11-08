@@ -20,7 +20,7 @@ var giscus = function () {
 
   script.crossOrigin = "anonymous";
   script.async = true;
-  document.getElementById("content").appendChild(script);
+  document.getElementById("giscus-container").appendChild(script);
 };
 
 window.addEventListener('load', giscus);
