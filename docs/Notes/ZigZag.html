@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>mdBook 和 Giscus - notes</title>
+        <title>ZigZag - notes</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Golang</li><li class="chapter-item expanded "><a href="../Golang/slice-growth-formula.html"><strong aria-hidden="true">1.</strong> Golang slice 增长公式</a></li><li class="chapter-item expanded affix "><li class="part-title">Blog</li><li class="chapter-item expanded "><a href="../Blog/mdBook-and-Giscus.html" class="active"><strong aria-hidden="true">2.</strong> mdBook 和 Giscus</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Golang</li><li class="chapter-item expanded "><a href="../Golang/slice-growth-formula.html"><strong aria-hidden="true">1.</strong> Golang slice 增长公式</a></li><li class="chapter-item expanded affix "><li class="part-title">Notes</li><li class="chapter-item expanded "><a href="../Notes/mdBook-and-Giscus.html"><strong aria-hidden="true">2.</strong> mdBook 和 Giscus</a></li><li class="chapter-item expanded "><a href="../Notes/protocol-buffer.html"><strong aria-hidden="true">3.</strong> Protocol Buffer</a></li><li class="chapter-item expanded "><a href="../Notes/ZigZag.html" class="active"><strong aria-hidden="true">4.</strong> ZigZag</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -137,137 +137,54 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="mdbook"><a class="header" href="#mdbook">mdBook</a></h2>
-<p><code>mdBook</code>是一个<code>markdown</code>文件文档生成工具, 将markdown文档转换为html格式<br />
-像<code>Gitbook</code>一样, 但用Rust实现</p>
-<h3 id="hello-world"><a class="header" href="#hello-world">Hello World</a></h3>
-<p>获取mdBook, 从mdBook的<a href="https://github.com/rust-lang/mdBook/releases">Github</a>页面下载即可</p>
-<p>创建项目 <code>mdbook init first-book</code>
-然后得到一个如下的文件结构</p>
-<pre><code>first-book
-├── book.toml         项目配置文件
-├─book                默认构建完的静态工程输出目录
-└─src                 存放md文档的目录
-    ├── SUMMARY.md    项目导航侧边栏的定义文件(文件名不能更改)
-    └── chapter_1.md  mdBook生成的示例文件
-</code></pre>
-<p>构建并通过默认浏览器打开 <code>mdbook build first-book --open</code><br />
-或者通过启动服务的方式<code>mdbook serve first-book --open</code><br />
-启动服务会监听文件变更重新构建html文件并实时反映到网页上</p>
-<hr />
-<h2 id="github-pages"><a class="header" href="#github-pages">GitHub Pages</a></h2>
-<p><code>GitHub Pages</code>是<code>Github</code>提供的一个网页寄存服务, 于2008年推出<br />
-可以用于存放静态网页, 包括博客、项目文件、甚至整本书<sup class="footnote-reference"><a href="#1">1</a></sup></p>
-<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
-<p><a href="https://zh.wikipedia.org/zh-cn/GitHub_Pages">Wikipedia</a></p>
-</div>
-<h3 id="create-a-repository"><a class="header" href="#create-a-repository">Create a repository</a></h3>
-<p>既然是<code>Github</code>提供的服务, 那第一步就是需要创建一个仓库<br />
-创建一个名为<code>username.github.io</code>的<code>public</code>仓库</p>
-<h3 id="hello-world-1"><a class="header" href="#hello-world-1">Hello World</a></h3>
-<pre><code>git clone https://github.com/username/username.github.io
-cd username.github.io
-echo &quot;Hello World&quot; &gt; index.html (linux 指令)
-&quot;Hello World&quot; | Out-File index.html (windows powershell 指令)
-git add --all
-git commit -m &quot;Hello World&quot;
-git push -u origin main
-</code></pre>
-<p>完成后使用浏览器打开<code>https://username.github.io</code><sup class="footnote-reference"><a href="#2">2</a></sup></p>
-<div class="footnote-definition" id="2"><sup class="footnote-definition-label">2</sup>
-<p><a href="https://pages.github.com/">GitHub</a></p>
-</div>
-<h3 id="更改构建分支文件夹"><a class="header" href="#更改构建分支文件夹">更改构建分支/文件夹</a></h3>
-<p><img src="./../images/mdBook-and-Giscus1.png" alt="avatar" /></p>
-<p>若想要更改构建的<code>分支</code>或者<code>文件夹</code><br />
-通过<code>Github</code>仓库页面, 选择<code>Settings</code><br />
-然后从左边导航栏中选中<code>Pages</code><br />
-通过<code>Branch</code>修改, Save后启用</p>
-<hr />
-<h2 id="giscus"><a class="header" href="#giscus">Giscus</a></h2>
-<p>由<code>GitHub Discussions</code>驱动的评论系统</p>
-<h3 id="获取giscus配置"><a class="header" href="#获取giscus配置">获取Giscus配置</a></h3>
+                        <h1 id="zigzag"><a class="header" href="#zigzag">ZigZag</a></h1>
+<p>ZigZag是一种压缩算法, 可以对小负数进行有效的压缩</p>
+<p>在了解算法前, 首先需要知道计算机使用补码存储数据</p>
 <ul>
-<li>首先需要安装<a href="https://github.com/apps/giscus"><code>giscus</code></a>的<code>Github APP</code></li>
-<li>然后需要在一个<code>public</code>的仓库中启用<code>Discussions</code>功能</li>
-<li>在<a href="https://giscus.app/"><code>giscus</code></a>中填入仓库名称, 选好配置选项后从页面下方获得<code>giscus</code>配置</li>
+<li>原码: 最高位位符号位, 剩下的表示绝对值</li>
+<li>反码: 除了符号位外, 对原码剩下的位取反</li>
+<li>补码: 对于正数和零补码就是其原码, 对于负数的补码则是其反码+1</li>
 </ul>
-<hr />
-<h2 id="整合"><a class="header" href="#整合">整合</a></h2>
-<h3 id="为mdbook启用giscus"><a class="header" href="#为mdbook启用giscus">为mdBook启用Giscus</a></h3>
-<blockquote>
-<p>假设使用的是<code>username.github.io</code>来作为<code>Giscus</code>配置仓库</p>
-</blockquote>
-<p>在<code>first-boo</code>目录下新增一个js文件</p>
-<pre><code class="language-js">var giscus = function () {
-  const script = document.createElement(&quot;script&quot;);
-  script.type = &quot;text/javascript&quot;;
-  script.src = &quot;https://giscus.app/client.js&quot;;
-  
-  
-  script.setAttribute(&quot;data-repo&quot;, &quot;username/username.github.io&quot;);
-  script.setAttribute(&quot;data-repo-id&quot;, &quot;data-repo-id&quot;);
-  script.setAttribute(&quot;data-category&quot;, &quot;data-category&quot;);
-  script.setAttribute(&quot;data-category-id&quot;, &quot;data-category-id&quot;);
+<p>由于计算机使用补码存储数据, 二进制数据非常大, 在普通的去零压缩中没有优势<br />
+ZigZag是将符号位移动到最低位, 若是负数则再对除符号位之外数据位取反<br />
+相当于原码, 只是符号位在最低位</p>
+<pre><code class="language-go">// 编码过程
+-2                                  // 十进制
+10000000 00000000 00000000 00000010 // 原码
+11111111 11111111 11111111 11111110 // 补码
+// ZigZag
+-2 &lt;&lt; 1 // 数据整体往左移动一位, 低位补0
+11111111 11111111 11111111 11111100
+-2 &gt;&gt; 31 // 将符号位移动到最低位, 由于是负数所以高位补1
+11111111 11111111 11111111 11111111
+(-2 &lt;&lt; 1) ^ (-2 &gt;&gt; 31)  // 相当于返回了原码，只是将符号位放置在了最低位
+n = 00000000 00000000 00000000 00000011
 
-  script.setAttribute(&quot;data-mapping&quot;, &quot;title&quot;);
-  script.setAttribute(&quot;data-term&quot;, &quot;0&quot;);
-  script.setAttribute(&quot;data-reactions-enabled&quot;, &quot;1&quot;);
-  script.setAttribute(&quot;data-emit-metadata&quot;, &quot;0&quot;);
-  script.setAttribute(&quot;data-input-position&quot;, &quot;top&quot;);
-  script.setAttribute(&quot;data-theme&quot;, &quot;preferred_color_scheme&quot;);
-  script.setAttribute(&quot;data-lang&quot;, &quot;zh-CN&quot;);
-  script.setAttribute(&quot;data-loading&quot;, &quot;lazy&quot;);
-
-  script.crossOrigin = &quot;anonymous&quot;;
-  script.async = true;
-  document.getElementById(&quot;giscus-container&quot;).appendChild(script);
-};
-
-window.addEventListener('load', giscus);
+// 解码过程
+n &gt;&gt; 1 // 右移，还原数据位
+00000000 00000000 00000000 00000001
+-(n &amp; 1) // 还原符号位
+00000000 00000000 00000000 00000001
+(n &gt;&gt; 1) ^ (-(n &amp; 1))
+11111111 11111111 11111111 11111110
 </code></pre>
-<p>下载<code>mdBook</code>的<code>handlebars</code>模板</p>
-<pre><code>cd username.github.io
-mkdir theme
-cd theme
-wget https://raw.githubusercontent.com/rust-lang/mdBook/master/src/theme/index.hbs -o index.hbs
-</code></pre>
-<p>修改<code>index.hbs</code>模板</p>
-<pre><code class="language-html">......
-&lt;main&gt;
-    {{{ content }}}
-    &lt;div id=&quot;giscus-container&quot;&gt;&lt;/div&gt; // 新增 giscus 元素 
-    // 不能使用 giscus 作为ID, 不然会覆盖到自身本来的
-&lt;/main&gt;
-......
-</code></pre>
-<p>修改<code>book.toml</code>增加指定加载新增的js文件, 假设js文件名为<code>giscus</code></p>
-<pre><code class="language-otml">......
-[output.html]
-additional-js = [&quot;giscus.js&quot;]
-......
-</code></pre>
-<p>最后构建静态文件并将文件提交到<code>username.github.io</code>仓库</p>
-<pre><code>mdbook build first-book
-</code></pre>
-<p>好了, 打开<code>https://username.github.io</code>
-<img src="./../images/mdBook-and-Giscus2.png" alt="avatar" /></p>
-<h3 id="共用仓库"><a class="header" href="#共用仓库">共用仓库</a></h3>
-<p>如果你想将md文件与静态文件放在同个仓库<br />
-可以这样修改<code>book.toml</code>的构建输出文件夹</p>
-<pre><code class="language-otml">......
-[build]
-build-dir = &quot;docs&quot;
-......
-</code></pre>
-<p>并将<code>Github Pages</code>中构建的文件夹更改为<code>docs</code></p>
-
+<p>数据与编码对对应关系, 也是名称的由来</p>
+<div class="table-wrapper"><table><thead><tr><th>非负数</th><th>负数</th><th>ZigZag</th></tr></thead><tbody>
+<tr><td>0</td><td></td><td>0</td></tr>
+<tr><td></td><td>-1</td><td>1</td></tr>
+<tr><td>1</td><td></td><td>2</td></tr>
+<tr><td></td><td>-2</td><td>3</td></tr>
+<tr><td>...</td><td>...</td><td>...</td></tr>
+<tr><td>2,147,483,647</td><td></td><td>4,294,967,294</td></tr>
+<tr><td></td><td>-2,147,483,648</td><td>4,294,967,295</td></tr>
+</tbody></table>
+</div>
                         <div id="giscus-container"></div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Golang/slice-growth-formula.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Notes/protocol-buffer.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         <div style="clear: both"></div>
@@ -276,7 +193,7 @@ build-dir = &quot;docs&quot;
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Golang/slice-growth-formula.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Notes/protocol-buffer.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
             </nav>

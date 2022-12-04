@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Golang slice 增长公式 - notes</title>
+        <title>Protocol Buffer - notes</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Golang</li><li class="chapter-item expanded "><a href="../Golang/slice-growth-formula.html" class="active"><strong aria-hidden="true">1.</strong> Golang slice 增长公式</a></li><li class="chapter-item expanded affix "><li class="part-title">Notes</li><li class="chapter-item expanded "><a href="../Notes/mdBook-and-Giscus.html"><strong aria-hidden="true">2.</strong> mdBook 和 Giscus</a></li><li class="chapter-item expanded "><a href="../Notes/protocol-buffer.html"><strong aria-hidden="true">3.</strong> Protocol Buffer</a></li><li class="chapter-item expanded "><a href="../Notes/ZigZag.html"><strong aria-hidden="true">4.</strong> ZigZag</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Golang</li><li class="chapter-item expanded "><a href="../Golang/slice-growth-formula.html"><strong aria-hidden="true">1.</strong> Golang slice 增长公式</a></li><li class="chapter-item expanded affix "><li class="part-title">Notes</li><li class="chapter-item expanded "><a href="../Notes/mdBook-and-Giscus.html"><strong aria-hidden="true">2.</strong> mdBook 和 Giscus</a></li><li class="chapter-item expanded "><a href="../Notes/protocol-buffer.html" class="active"><strong aria-hidden="true">3.</strong> Protocol Buffer</a></li><li class="chapter-item expanded "><a href="../Notes/ZigZag.html"><strong aria-hidden="true">4.</strong> ZigZag</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -137,167 +137,109 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="golang-slice-增长公式"><a class="header" href="#golang-slice-增长公式">golang slice 增长公式</a></h2>
-<p>当切片容量不足时，会调用Go标准库 <code>runtime.growslice</code> 函数为切片扩容<br />
-这里只关注增长公式</p>
-<h3 id="第一步-确定容量"><a class="header" href="#第一步-确定容量">第一步 确定容量</a></h3>
-<h4 id="go-118-之前"><a class="header" href="#go-118-之前">go 1.18 之前</a></h4>
-<pre><code class="language-go">func growslice(et *_type, old slice, cap int) slice {
-  ......
+                        <h1 id="protocol-buffer"><a class="header" href="#protocol-buffer">Protocol Buffer</a></h1>
+<p>Protocol Buffer, 简称 ProtoBuf<br />
+由 Google 开发，是一种开源跨平台的序列化协议</p>
+<h2 id="proto2-diff-proto3"><a class="header" href="#proto2-diff-proto3">Proto2 Diff Proto3</a></h2>
+<p>Proto3是Proto2的简化版本</p>
+<h3 id="默认值"><a class="header" href="#默认值">默认值</a></h3>
+<p>Proto3不允许自定义默认值, 在Proto3中的所有字段都具有一致的零默认值</p>
+<h3 id="必填字段"><a class="header" href="#必填字段">必填字段</a></h3>
+<p>Proto3删除了<code>required</code>字段的支持</p>
+<h2 id="编码"><a class="header" href="#编码">编码</a></h2>
+<h3 id="varints"><a class="header" href="#varints">varints</a></h3>
+<p>可变宽整数, 使用 1 到 10个字节之间的长度对无符号64位整数进行编码，较小的值可以使用较少的字节</p>
+<p>在varint中，每个字节都有一个标志位，表示它后面的字节是否时varint的一部分<br />
+这个字节是MSB(Most Significant Bit / 最高有效位), 低 7 位是有效载荷</p>
+<pre><code class="language-go">0000 0001
+^ msb
 
-  newcap := old.cap
-	doublecap := newcap + newcap
-	if cap &gt; doublecap {
-		newcap = cap
-	} else {
-		if old.cap &lt; 1024 {
-			newcap = doublecap
-		} else {
-			// Check 0 &lt; newcap 检测溢出并防止无限循环
-			for 0 &lt; newcap &amp;&amp; newcap &lt; cap {
-				newcap += newcap / 4
-			}
-			if newcap &lt;= 0 {
-				newcap = cap
-			}
-		}
-	}
-
-  ......
+1000 0011 0000 0001 // 131
+^ msb     ^ msb
+</code></pre>
+<p>那么是如何得出是 131 的呢</p>
+<pre><code class="language-go">1000 0011 0000 0001 // 原始输入
+ 000 0011  000 0001 // 去除MSB
+ 000 0001  000 0011 // 按小端排列
+ 10000011           // 连接
+ 128 + 2 + 1 = 131  // 解释为十进制
+</code></pre>
+<h3 id="字段编号和类型"><a class="header" href="#字段编号和类型">字段编号和类型</a></h3>
+<p>当对消息进行编码时，每个键值对会变为一个记录<br />
+其中包含字段编号(field number 简称 fn)、类型(wire type 简称 wt)和有效负载<br />
+其中字段编号和类型 使用 varint 格式编码, 最低三位表示类型</p>
+<div class="table-wrapper"><table><thead><tr><th>Wire Type</th><th>解析</th><th>对应数据类型</th></tr></thead><tbody>
+<tr><td>0</td><td>varint 变长整型</td><td>int32, int64, uint32, uint64, sint32, sint64, bool, enum</td></tr>
+<tr><td>1</td><td>固定8字节</td><td>fixed64, sfixed64, double</td></tr>
+<tr><td>2</td><td>后面需要跟随一个长度</td><td>string, bytes, required字段, 嵌套类型</td></tr>
+<tr><td>3</td><td>废弃</td><td></td></tr>
+<tr><td>4</td><td>废弃</td><td></td></tr>
+<tr><td>5</td><td>固定4字节</td><td>fixed32, sfixed32, float</td></tr>
+</tbody></table>
+</div>
+<pre><code class="language-go">// 消息定义
+message example {
+  int32 i32 = 1;
+  fixed64 f64 = 2;
+  string str = 3;
+  sint32 s32 = 4;
 }
-</code></pre>
-<p>在这里可以得出<br />
-若申请的容量为原来容量的两倍以上, 则直接确定新容量为申请的容量, 否则<br />
-在容量小于1024之前增长因子为2, 即容量翻倍<br />
-容量大于1024之后增长因子为1.25, 即容量增加25%, 直到大于申请的容量</p>
-<h4 id="go-118之后"><a class="header" href="#go-118之后">go 1.18之后</a></h4>
-<pre><code class="language-go">func growslice(et *_type, old slice, cap int) slice {
-  ......
 
-  newcap := old.cap
-	doublecap := newcap + newcap
-	if cap &gt; doublecap {
-		newcap = cap
-	} else {
-		const threshold = 256
-		if old.cap &lt; threshold {
-			newcap = doublecap
-		} else {
-			for 0 &lt; newcap &amp;&amp; newcap &lt; cap {
-				newcap += (newcap + 3*threshold) / 4
-			}
-			if newcap &lt;= 0 {
-				newcap = cap
-			}
-		}
-	}
-
-  ......
+// 假设序列化时的对象信息
+{
+  i32: 257,
+  f64: 1,
+  s32: -2,
+  b: Buffer.from([0xaa, 0xbb, 0xcc, 0xdd]),
 }
+//编码后 &lt;Buffer 08 81 02 11 01 00 00 00 00 00 00 00 1a 04 aa bb cc dd 20 03&gt;
 </code></pre>
-<p>阈值变小了, 为了让小切片到大切片的增长因子有平滑的过度进行了改进(<a href="https://github.com/golang/go/commit/2dda92ff6f9f07eeb110ecbf0fc2d7a0ddd27f9d">commit</a>)<br />
-在容量小于256之前增长因子为2, 即容量翻倍, 与之前相同<br />
-在容量大于256之后, 公式等于 <code>新容量 = 旧容量 + (旧容量 + 3 * 256) / 4</code><br />
-等于 <code>新容量 = 1.25 * 旧容量 + 192</code><br />
-因此当容量大于256时, 增长因子为1.25, 加上固定容量192<br />
-随着容量增长, 增长因子因此逐渐靠近1.25</p>
-<pre><code>starting cap    growth factor
-256             2.0
-512             1.63
-1024            1.44
-2048            1.35
-4096            1.30
-</code></pre>
-<h3 id="第二步-内存对齐"><a class="header" href="#第二步-内存对齐">第二步 内存对齐</a></h3>
-<p>代码紧接上一步</p>
-<pre><code class="language-go">func growslice(et *_type, old slice, cap int) slice {
-  ......
-
-	var overflow bool
-	var lenmem, newlenmem, capmem uintptr
-	switch {
-	case et.size == 1:
-		lenmem = uintptr(old.len)
-		newlenmem = uintptr(cap)
-		capmem = roundupsize(uintptr(newcap))
-		overflow = uintptr(newcap) &gt; maxAlloc
-		newcap = int(capmem)
-	case et.size == goarch.PtrSize:
-		lenmem = uintptr(old.len) * goarch.PtrSize
-		newlenmem = uintptr(cap) * goarch.PtrSize
-		capmem = roundupsize(uintptr(newcap) * goarch.PtrSize)
-		overflow = uintptr(newcap) &gt; maxAlloc/goarch.PtrSize
-		newcap = int(capmem / goarch.PtrSize)
-	case isPowerOfTwo(et.size):
-		var shift uintptr
-		if goarch.PtrSize == 8 {
-			shift = uintptr(sys.Ctz64(uint64(et.size))) &amp; 63
-		} else {
-			shift = uintptr(sys.Ctz32(uint32(et.size))) &amp; 31
-		}
-		lenmem = uintptr(old.len) &lt;&lt; shift
-		newlenmem = uintptr(cap) &lt;&lt; shift
-		capmem = roundupsize(uintptr(newcap) &lt;&lt; shift)
-		overflow = uintptr(newcap) &gt; (maxAlloc &gt;&gt; shift)
-		newcap = int(capmem &gt;&gt; shift)
-	default:
-		lenmem = uintptr(old.len) * et.size
-		newlenmem = uintptr(cap) * et.size
-		capmem, overflow = math.MulUintptr(et.size, uintptr(newcap))
-		capmem = roundupsize(capmem)
-		newcap = int(capmem / et.size)
-	}
-
-  ......
-}
-</code></pre>
-<p>由于本文主要关注<code>增长</code>相关问题, 所以这里忽略其他<br />
-这部分主要使用使用 <code>roundupsize</code> 函数处理内存对齐
-最终可能导致<code>newcap</code>变大</p>
-<h3 id="示例"><a class="header" href="#示例">示例</a></h3>
-<pre><code class="language-go">func main() {
-	// 运行于 go 1.19.2
-	s1 := []uint8{1, 2, 3}
-	fmt.Printf(&quot;s1 len:%d, cap: %d \n&quot;, len(s1), cap(s1))
-	// 3 + 4 大于两倍, 直接使用 7
-	// 内存对齐 8
-	s1 = append(s1, 4, 5, 6, 7)
-	fmt.Printf(&quot;s1 len:%d, cap: %d \n&quot;, len(s1), cap(s1))
-
-	s2 := make([]int, 256)
-	fmt.Printf(&quot;s2 len:%d, cap: %d \n&quot;, len(s2), cap(s2))
-	//   256 + (256 + 3 * 256) / 4
-	// = 512
-	s2 = append(s2, 1, 2, 3, 4)
-	fmt.Printf(&quot;s2 len:%d, cap: %d \n&quot;, len(s2), cap(s2))
-}
-</code></pre>
-<p>输出</p>
-<pre><code>s1 len:3, cap: 3
-s1 len:7, cap: 8
-s2 len:256, cap: 256
-s2 len:260, cap: 512
-</code></pre>
-<h3 id="总结"><a class="header" href="#总结">总结</a></h3>
-<p>由此可以看出所有决定容量的步骤</p>
+<p>首先分析第一个字节 0x08 二进制 0000 1000<br />
+去除MSB, 000 1000<br />
+后三位表示类型 wt = 000 = 0, 表示数据类型为变长整形<br />
+剩余字段表示字段编号 fn = 0001 = 1</p>
+<p>第二个字节 0x81 =&gt; 1000 0001<br />
+MSB为1, 表示后面的数据是其的一部分<br />
+第三字节 0x02 =&gt; 0000 0010<br />
+MSB为0, 表示是数据最后一个字节<br />
+按照小端排列并连接起来得到<br />
+000 0010 000 0001 =&gt; 257</p>
+<p>即前三个字节表示, 字段编号1, 数据类型为变长整形<br />
+对应到消息定义的类型为int32, 对应数据为 257</p>
+<p>接着分析第四个字节 0x11 =&gt; 0001 0001<br />
+fn = 2, wt = 1<br />
+即有效载荷为 01 00 00 00 00 00 00 00<br />
+根据小端排序后 00 00 00 00 00 00 00 01<br />
+对应到消息定义的类型为fixed64, 对应数据为 1</p>
+<p>接着分析第十三个字节 0x1a =&gt; 0001 1010<br />
+fn = 3, wt = 2<br />
+当 wt = 2 时, 后面紧跟一个 varint 编码的数值表示有效载荷的长度<br />
+第十四字节 0x04 , 表示后面的有效载荷的长度为4, 为 0xaa, 0xbb, 0xcc, 0xdd</p>
+<p>接着分析第十九个字节 0x20 =&gt; 0010 0000<br />
+fn = 4, wt = 0<br />
+第二十个字节为 0x03 =&gt; 0000 0011<br />
+对应到消息定义的类型为s32, <code>sintN</code>使用了<a href="./ZigZag.html">ZigZag</a>编码，而不是二进制补码的来编码负整数</p>
+<h1 id="总结"><a class="header" href="#总结">总结</a></h1>
 <ul>
-<li>当申请容量大于当前容量两倍则直接使用申请容量</li>
-<li>当容量小于容量阈值, 增长因子为2, 即容量翻倍</li>
-<li>go 1.18 之前, 当容量大于容量阈值, 增长因子为1.25, 即容量增加 25%, 直到满足申请容量</li>
-<li>go 1.18 和之后, 在容量增加 25% 之外还额外增加固定 192</li>
-<li>进行内存对齐</li>
+<li>当小负数时应该选择 sint32, sint64 相比 int32 和 int64 在负数时更具效率, 因为使用了 ZigZag 编码</li>
+<li>当数字大于 2^56 那么定长8字节的 fixed64 比 uint64 更高效, 因为 uint64 每个字节只有7位有效负荷</li>
+<li>当数字大于 2^28 那么定长4字节的 fixed32 比 uint32 更高效, 原因一样</li>
 </ul>
-<blockquote>
-<p>容量阈值<code>go 1.18</code>之前为<code>1024</code><br />
-容量阈值<code>go 1.18</code>和之后为<code>256</code>, 编辑日期2022年11月7日</p>
-</blockquote>
+<h1 id="参考资料"><a class="header" href="#参考资料">参考资料</a></h1>
+<ul>
+<li><a href="https://www.hackingnote.com/en/versus/proto2-vs-proto3">Proto2 vs Proto3</a></li>
+<li><a href="https://developers.google.com/protocol-buffers/docs/encoding">Protocol Buffer Encoding</a></li>
+</ul>
 
                         <div id="giscus-container"></div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="next" href="../Notes/mdBook-and-Giscus.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="prev" href="../Notes/mdBook-and-Giscus.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../Notes/ZigZag.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
@@ -306,7 +248,10 @@ s2 len:260, cap: 512
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="next" href="../Notes/mdBook-and-Giscus.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="prev" href="../Notes/mdBook-and-Giscus.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../Notes/ZigZag.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
