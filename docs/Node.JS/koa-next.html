@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>mdBook 和 Giscus - notes</title>
+        <title>Koa 之 next 函数 - notes</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Golang</li><li class="chapter-item expanded "><a href="../Golang/slice-growth-formula.html"><strong aria-hidden="true">1.</strong> Golang slice 增长公式</a></li><li class="chapter-item expanded affix "><li class="part-title">Node.JS</li><li class="chapter-item expanded "><a href="../Node.JS/koa-next.html"><strong aria-hidden="true">2.</strong> Koa 之 next 函数</a></li><li class="chapter-item expanded affix "><li class="part-title">Notes</li><li class="chapter-item expanded "><a href="../Notes/mdBook-and-Giscus.html" class="active"><strong aria-hidden="true">3.</strong> mdBook 和 Giscus</a></li><li class="chapter-item expanded "><a href="../Notes/protocol-buffer.html"><strong aria-hidden="true">4.</strong> Protocol Buffer</a></li><li class="chapter-item expanded "><a href="../Notes/ZigZag.html"><strong aria-hidden="true">5.</strong> ZigZag</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Golang</li><li class="chapter-item expanded "><a href="../Golang/slice-growth-formula.html"><strong aria-hidden="true">1.</strong> Golang slice 增长公式</a></li><li class="chapter-item expanded affix "><li class="part-title">Node.JS</li><li class="chapter-item expanded "><a href="../Node.JS/koa-next.html" class="active"><strong aria-hidden="true">2.</strong> Koa 之 next 函数</a></li><li class="chapter-item expanded affix "><li class="part-title">Notes</li><li class="chapter-item expanded "><a href="../Notes/mdBook-and-Giscus.html"><strong aria-hidden="true">3.</strong> mdBook 和 Giscus</a></li><li class="chapter-item expanded "><a href="../Notes/protocol-buffer.html"><strong aria-hidden="true">4.</strong> Protocol Buffer</a></li><li class="chapter-item expanded "><a href="../Notes/ZigZag.html"><strong aria-hidden="true">5.</strong> ZigZag</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -137,140 +137,118 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="mdbook"><a class="header" href="#mdbook">mdBook</a></h2>
-<p><code>mdBook</code>是一个<code>markdown</code>文件文档生成工具, 将markdown文档转换为html格式<br />
-像<code>Gitbook</code>一样, 但用Rust实现</p>
-<h3 id="hello-world"><a class="header" href="#hello-world">Hello World</a></h3>
-<p>获取mdBook, 从mdBook的<a href="https://github.com/rust-lang/mdBook/releases">Github</a>页面下载即可</p>
-<p>创建项目 <code>mdbook init first-book</code>
-然后得到一个如下的文件结构</p>
-<pre><code>first-book
-├── book.toml         项目配置文件
-├─book                默认构建完的静态工程输出目录
-└─src                 存放md文档的目录
-    ├── SUMMARY.md    项目导航侧边栏的定义文件(文件名不能更改)
-    └── chapter_1.md  mdBook生成的示例文件
-</code></pre>
-<p>构建并通过默认浏览器打开 <code>mdbook build first-book --open</code><br />
-或者通过启动服务的方式<code>mdbook serve first-book --open</code><br />
-启动服务会监听文件变更重新构建html文件并实时反映到网页上</p>
-<hr />
-<h2 id="github-pages"><a class="header" href="#github-pages">GitHub Pages</a></h2>
-<p><code>GitHub Pages</code>是<code>Github</code>提供的一个网页寄存服务, 于2008年推出<br />
-可以用于存放静态网页, 包括博客、项目文件、甚至整本书<sup class="footnote-reference"><a href="#1">1</a></sup></p>
-<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
-<p><a href="https://zh.wikipedia.org/zh-cn/GitHub_Pages">Wikipedia</a></p>
-</div>
-<h3 id="create-a-repository"><a class="header" href="#create-a-repository">Create a repository</a></h3>
-<p>既然是<code>Github</code>提供的服务, 那第一步就是需要创建一个仓库<br />
-创建一个名为<code>username.github.io</code>的<code>public</code>仓库</p>
-<h3 id="hello-world-1"><a class="header" href="#hello-world-1">Hello World</a></h3>
-<pre><code>git clone https://github.com/username/username.github.io
-cd username.github.io
-echo &quot;Hello World&quot; &gt; index.html (linux 指令)
-&quot;Hello World&quot; | Out-File index.html (windows powershell 指令)
-git add --all
-git commit -m &quot;Hello World&quot;
-git push -u origin main
-</code></pre>
-<p>完成后使用浏览器打开<code>https://username.github.io</code><sup class="footnote-reference"><a href="#2">2</a></sup></p>
-<div class="footnote-definition" id="2"><sup class="footnote-definition-label">2</sup>
-<p><a href="https://pages.github.com/">GitHub</a></p>
-</div>
-<h3 id="更改构建分支文件夹"><a class="header" href="#更改构建分支文件夹">更改构建分支/文件夹</a></h3>
-<p><img src="./../images/mdBook-and-Giscus1.png" alt="avatar" /></p>
-<p>若想要更改构建的<code>分支</code>或者<code>文件夹</code><br />
-通过<code>Github</code>仓库页面, 选择<code>Settings</code><br />
-然后从左边导航栏中选中<code>Pages</code><br />
-通过<code>Branch</code>修改, Save后启用</p>
-<hr />
-<h2 id="giscus"><a class="header" href="#giscus">Giscus</a></h2>
-<p>由<code>GitHub Discussions</code>驱动的评论系统</p>
-<h3 id="获取giscus配置"><a class="header" href="#获取giscus配置">获取Giscus配置</a></h3>
-<ul>
-<li>首先需要安装<a href="https://github.com/apps/giscus"><code>giscus</code></a>的<code>Github APP</code></li>
-<li>然后需要在一个<code>public</code>的仓库中启用<code>Discussions</code>功能</li>
-<li>在<a href="https://giscus.app/"><code>giscus</code></a>中填入仓库名称, 选好配置选项后从页面下方获得<code>giscus</code>配置</li>
-</ul>
-<hr />
-<h2 id="整合"><a class="header" href="#整合">整合</a></h2>
-<h3 id="为mdbook启用giscus"><a class="header" href="#为mdbook启用giscus">为mdBook启用Giscus</a></h3>
-<blockquote>
-<p>假设使用的是<code>username.github.io</code>来作为<code>Giscus</code>配置仓库</p>
-</blockquote>
-<p>在<code>first-boo</code>目录下新增一个js文件</p>
-<pre><code class="language-js">var giscus = function () {
-  const script = document.createElement(&quot;script&quot;);
-  script.type = &quot;text/javascript&quot;;
-  script.src = &quot;https://giscus.app/client.js&quot;;
-  
-  
-  script.setAttribute(&quot;data-repo&quot;, &quot;username/username.github.io&quot;);
-  script.setAttribute(&quot;data-repo-id&quot;, &quot;data-repo-id&quot;);
-  script.setAttribute(&quot;data-category&quot;, &quot;data-category&quot;);
-  script.setAttribute(&quot;data-category-id&quot;, &quot;data-category-id&quot;);
+                        <h2 id="koa-中的-next"><a class="header" href="#koa-中的-next">Koa 中的 next</a></h2>
+<pre><code class="language-js">const Koa = require('koa');
+const app = new Koa();
 
-  script.setAttribute(&quot;data-mapping&quot;, &quot;title&quot;);
-  script.setAttribute(&quot;data-term&quot;, &quot;0&quot;);
-  script.setAttribute(&quot;data-reactions-enabled&quot;, &quot;1&quot;);
-  script.setAttribute(&quot;data-emit-metadata&quot;, &quot;0&quot;);
-  script.setAttribute(&quot;data-input-position&quot;, &quot;top&quot;);
-  script.setAttribute(&quot;data-theme&quot;, &quot;preferred_color_scheme&quot;);
-  script.setAttribute(&quot;data-lang&quot;, &quot;zh-CN&quot;);
-  script.setAttribute(&quot;data-loading&quot;, &quot;lazy&quot;);
+app.use(async (ctx, next) =&gt; {
+  console.log(1);
+  await next();
+  console.log(6);
+})
 
-  script.crossOrigin = &quot;anonymous&quot;;
-  script.async = true;
-  document.getElementById(&quot;giscus-container&quot;).appendChild(script);
-};
+app.use(async (ctx, next) =&gt; {
+  console.log(2);
+  await next();
+  console.log(5);
+})
 
-window.addEventListener('load', giscus);
+app.use(async (ctx, next) =&gt; {
+  console.log(3);
+  await next();
+  console.log(4);
+})
+
+app.use(ctx =&gt; {
+  ctx.body = 'Hello Koa';
+});
+
+app.listen(3000);
+// 输出 1 2 3 4 5 6
 </code></pre>
-<p>下载<code>mdBook</code>的<code>handlebars</code>模板</p>
-<pre><code>cd username.github.io
-mkdir theme
-cd theme
-wget https://raw.githubusercontent.com/rust-lang/mdBook/master/src/theme/index.hbs -o index.hbs
+<p>Koa 中 使用 use 函数注册中间件, 并按照注册注册顺序调用<br />
+在 <a href="https://github.com/koajs/koa/blob/master/lib/application.js#L141">application.js use</a> 函数中可以看到, 传入的中间件被放入了一个 middleware 队列中</p>
+<pre><code class="language-js">use (fn) {
+  ...
+  this.middleware.push(fn)
+  ...
+}
 </code></pre>
-<p>修改<code>index.hbs</code>模板</p>
-<pre><code class="language-html">......
-&lt;main&gt;
-    {{{ content }}}
-    &lt;div id=&quot;giscus-container&quot;&gt;&lt;/div&gt; // 新增 giscus 元素 
-    // 不能使用 giscus 作为ID, 不然会覆盖到自身本来的
-&lt;/main&gt;
-......
+<p>在 <a href="https://github.com/koajs/koa/blob/master/lib/application.js#L156">application.js callback</a> 函数中使用 koa-compose 来处理 middleware 队列</p>
+<pre><code class="language-js">callback () {
+    const fn = this.compose(this.middleware)
+    ...
+  }
+
 </code></pre>
-<p>修改<code>book.toml</code>增加指定加载新增的js文件, 假设js文件名为<code>giscus</code></p>
-<pre><code class="language-otml">......
-[output.html]
-additional-js = [&quot;giscus.js&quot;]
-......
+<p>接下来看看 <a href="https://github.com/koajs/compose/blob/master/index.js#L19">compose</a> 函数</p>
+<pre><code class="language-js">// 省略了一些错误判断
+function compose (middleware) {
+  return function (context, next) {
+    return dispatch(0)
+    function dispatch (i) {
+      let fn = middleware[i]
+      if (i === middleware.length) fn = next
+      if (!fn) return Promise.resolve()
+      try {
+        return Promise.resolve(fn(context, dispatch.bind(null, i + 1)));
+      } catch (err) {
+        return Promise.reject(err)
+      }
+    }
+  }
+}
 </code></pre>
-<p>最后构建静态文件并将文件提交到<code>username.github.io</code>仓库</p>
-<pre><code>mdbook build first-book
+<p>从上面的函数可以看出, next 函数是由 <code>dispatch.bind(null, i + 1)</code>  这句语句生成的<br />
+使用 next 则调用下一个中间件, 若不使用 next 则执行完当前中间件就会返回
+并且在调用完成之后还能再返回到原来的中间件（即洋葱模型）</p>
+<p>将上面的函数拆解并精简之后, 方便理解</p>
+<pre><code class="language-js">const middleware = []
+
+function use(fn) {
+    middleware.push(fn);
+}
+
+function dispatch(i) {
+    const fn = middleware[i];
+    if (!fn) return
+    return fn(dispatch.bind(null, i + 1));
+}
+
+function compose() {
+    return dispatch(0);
+}
+
+use((next) =&gt; {
+    console.log(1);
+    next();
+    console.log(6);
+})
+use((next) =&gt; {
+    console.log(2);
+    next();
+    console.log(5);
+})
+use((next) =&gt; {
+    console.log(3);
+    next();
+    console.log(4);
+})
+compose()
+// 输出 1 2 3 4 5 6
 </code></pre>
-<p>好了, 打开<code>https://username.github.io</code>
-<img src="./../images/mdBook-and-Giscus2.png" alt="avatar" /></p>
-<h3 id="共用仓库"><a class="header" href="#共用仓库">共用仓库</a></h3>
-<p>如果你想将md文件与静态文件放在同个仓库<br />
-可以这样修改<code>book.toml</code>的构建输出文件夹</p>
-<pre><code class="language-otml">......
-[build]
-build-dir = &quot;docs&quot;
-......
-</code></pre>
-<p>并将<code>Github Pages</code>中构建的文件夹更改为<code>docs</code></p>
+<h2 id="总结"><a class="header" href="#总结">总结</a></h2>
+<p>Koa 通过使用 bind 函数实现了洋葱模型</p>
 
                         <div id="giscus-container"></div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Node.JS/koa-next.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Golang/slice-growth-formula.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
-                            <a rel="next" href="../Notes/protocol-buffer.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../Notes/mdBook-and-Giscus.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
@@ -279,10 +257,10 @@ build-dir = &quot;docs&quot;
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Node.JS/koa-next.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Golang/slice-growth-formula.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
-                    <a rel="next" href="../Notes/protocol-buffer.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../Notes/mdBook-and-Giscus.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

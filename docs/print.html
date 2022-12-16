@@ -76,7 +76,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Golang</li><li class="chapter-item expanded "><a href="Golang/slice-growth-formula.html"><strong aria-hidden="true">1.</strong> Golang slice 增长公式</a></li><li class="chapter-item expanded affix "><li class="part-title">Notes</li><li class="chapter-item expanded "><a href="Notes/mdBook-and-Giscus.html"><strong aria-hidden="true">2.</strong> mdBook 和 Giscus</a></li><li class="chapter-item expanded "><a href="Notes/protocol-buffer.html"><strong aria-hidden="true">3.</strong> Protocol Buffer</a></li><li class="chapter-item expanded "><a href="Notes/ZigZag.html"><strong aria-hidden="true">4.</strong> ZigZag</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Golang</li><li class="chapter-item expanded "><a href="Golang/slice-growth-formula.html"><strong aria-hidden="true">1.</strong> Golang slice 增长公式</a></li><li class="chapter-item expanded affix "><li class="part-title">Node.JS</li><li class="chapter-item expanded "><a href="Node.JS/koa-next.html"><strong aria-hidden="true">2.</strong> Koa 之 next 函数</a></li><li class="chapter-item expanded affix "><li class="part-title">Notes</li><li class="chapter-item expanded "><a href="Notes/mdBook-and-Giscus.html"><strong aria-hidden="true">3.</strong> mdBook 和 Giscus</a></li><li class="chapter-item expanded "><a href="Notes/protocol-buffer.html"><strong aria-hidden="true">4.</strong> Protocol Buffer</a></li><li class="chapter-item expanded "><a href="Notes/ZigZag.html"><strong aria-hidden="true">5.</strong> ZigZag</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -292,6 +292,108 @@ s2 len:260, cap: 512
 <p>容量阈值<code>go 1.18</code>之前为<code>1024</code><br />
 容量阈值<code>go 1.18</code>和之后为<code>256</code>, 编辑日期2022年11月7日</p>
 </blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="koa-中的-next"><a class="header" href="#koa-中的-next">Koa 中的 next</a></h2>
+<pre><code class="language-js">const Koa = require('koa');
+const app = new Koa();
+
+app.use(async (ctx, next) =&gt; {
+  console.log(1);
+  await next();
+  console.log(6);
+})
+
+app.use(async (ctx, next) =&gt; {
+  console.log(2);
+  await next();
+  console.log(5);
+})
+
+app.use(async (ctx, next) =&gt; {
+  console.log(3);
+  await next();
+  console.log(4);
+})
+
+app.use(ctx =&gt; {
+  ctx.body = 'Hello Koa';
+});
+
+app.listen(3000);
+// 输出 1 2 3 4 5 6
+</code></pre>
+<p>Koa 中 使用 use 函数注册中间件, 并按照注册注册顺序调用<br />
+在 <a href="https://github.com/koajs/koa/blob/master/lib/application.js#L141">application.js use</a> 函数中可以看到, 传入的中间件被放入了一个 middleware 队列中</p>
+<pre><code class="language-js">use (fn) {
+  ...
+  this.middleware.push(fn)
+  ...
+}
+</code></pre>
+<p>在 <a href="https://github.com/koajs/koa/blob/master/lib/application.js#L156">application.js callback</a> 函数中使用 koa-compose 来处理 middleware 队列</p>
+<pre><code class="language-js">callback () {
+    const fn = this.compose(this.middleware)
+    ...
+  }
+
+</code></pre>
+<p>接下来看看 <a href="https://github.com/koajs/compose/blob/master/index.js#L19">compose</a> 函数</p>
+<pre><code class="language-js">// 省略了一些错误判断
+function compose (middleware) {
+  return function (context, next) {
+    return dispatch(0)
+    function dispatch (i) {
+      let fn = middleware[i]
+      if (i === middleware.length) fn = next
+      if (!fn) return Promise.resolve()
+      try {
+        return Promise.resolve(fn(context, dispatch.bind(null, i + 1)));
+      } catch (err) {
+        return Promise.reject(err)
+      }
+    }
+  }
+}
+</code></pre>
+<p>从上面的函数可以看出, next 函数是由 <code>dispatch.bind(null, i + 1)</code>  这句语句生成的<br />
+使用 next 则调用下一个中间件, 若不使用 next 则执行完当前中间件就会返回
+并且在调用完成之后还能再返回到原来的中间件（即洋葱模型）</p>
+<p>将上面的函数拆解并精简之后, 方便理解</p>
+<pre><code class="language-js">const middleware = []
+
+function use(fn) {
+    middleware.push(fn);
+}
+
+function dispatch(i) {
+    const fn = middleware[i];
+    if (!fn) return
+    return fn(dispatch.bind(null, i + 1));
+}
+
+function compose() {
+    return dispatch(0);
+}
+
+use((next) =&gt; {
+    console.log(1);
+    next();
+    console.log(6);
+})
+use((next) =&gt; {
+    console.log(2);
+    next();
+    console.log(5);
+})
+use((next) =&gt; {
+    console.log(3);
+    next();
+    console.log(4);
+})
+compose()
+// 输出 1 2 3 4 5 6
+</code></pre>
+<h2 id="总结-1"><a class="header" href="#总结-1">总结</a></h2>
+<p>Koa 通过使用 bind 函数实现了洋葱模型</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="mdbook"><a class="header" href="#mdbook">mdBook</a></h2>
 <p><code>mdBook</code>是一个<code>markdown</code>文件文档生成工具, 将markdown文档转换为html格式<br />
 像<code>Gitbook</code>一样, 但用Rust实现</p>
@@ -498,7 +600,7 @@ fn = 3, wt = 2<br />
 fn = 4, wt = 0<br />
 第二十个字节为 0x03 =&gt; 0000 0011<br />
 对应到消息定义的类型为s32, <code>sintN</code>使用了<a href="Notes/./ZigZag.html">ZigZag</a>编码，而不是二进制补码的来编码负整数</p>
-<h1 id="总结-1"><a class="header" href="#总结-1">总结</a></h1>
+<h1 id="总结-2"><a class="header" href="#总结-2">总结</a></h1>
 <ul>
 <li>当小负数时应该选择 sint32, sint64 相比 int32 和 int64 在负数时更具效率, 因为使用了 ZigZag 编码</li>
 <li>当数字大于 2^56 那么定长8字节的 fixed64 比 uint64 更高效, 因为 uint64 每个字节只有7位有效负荷</li>
