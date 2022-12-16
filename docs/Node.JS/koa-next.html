@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Golang</li><li class="chapter-item expanded "><a href="../Golang/slice-growth-formula.html"><strong aria-hidden="true">1.</strong> Golang slice 增长公式</a></li><li class="chapter-item expanded affix "><li class="part-title">Node.JS</li><li class="chapter-item expanded "><a href="../Node.JS/koa-next.html" class="active"><strong aria-hidden="true">2.</strong> Koa 之 next 函数</a></li><li class="chapter-item expanded affix "><li class="part-title">Notes</li><li class="chapter-item expanded "><a href="../Notes/mdBook-and-Giscus.html"><strong aria-hidden="true">3.</strong> mdBook 和 Giscus</a></li><li class="chapter-item expanded "><a href="../Notes/protocol-buffer.html"><strong aria-hidden="true">4.</strong> Protocol Buffer</a></li><li class="chapter-item expanded "><a href="../Notes/ZigZag.html"><strong aria-hidden="true">5.</strong> ZigZag</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Golang</li><li class="chapter-item expanded "><a href="../Golang/slice-growth-formula.html"><strong aria-hidden="true">1.</strong> Golang slice 增长公式</a></li><li class="chapter-item expanded "><a href="../Golang/gin-next.html"><strong aria-hidden="true">2.</strong> Gin 之 next 函数</a></li><li class="chapter-item expanded affix "><li class="part-title">Node.JS</li><li class="chapter-item expanded "><a href="../Node.JS/koa-next.html" class="active"><strong aria-hidden="true">3.</strong> Koa 之 next 函数</a></li><li class="chapter-item expanded affix "><li class="part-title">Notes</li><li class="chapter-item expanded "><a href="../Notes/mdBook-and-Giscus.html"><strong aria-hidden="true">4.</strong> mdBook 和 Giscus</a></li><li class="chapter-item expanded "><a href="../Notes/protocol-buffer.html"><strong aria-hidden="true">5.</strong> Protocol Buffer</a></li><li class="chapter-item expanded "><a href="../Notes/ZigZag.html"><strong aria-hidden="true">6.</strong> ZigZag</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -166,7 +166,7 @@ app.use(ctx =&gt; {
 app.listen(3000);
 // 输出 1 2 3 4 5 6
 </code></pre>
-<p>Koa 中 使用 use 函数注册中间件, 并按照注册注册顺序调用<br />
+<p>Koa 中使用 use 函数注册中间件, 并按照注册注册顺序调用<br />
 在 <a href="https://github.com/koajs/koa/blob/master/lib/application.js#L141">application.js use</a> 函数中可以看到, 传入的中间件被放入了一个 middleware 队列中</p>
 <pre><code class="language-js">use (fn) {
   ...
@@ -238,14 +238,18 @@ compose()
 // 输出 1 2 3 4 5 6
 </code></pre>
 <h2 id="总结"><a class="header" href="#总结">总结</a></h2>
-<p>Koa 通过使用 bind 函数实现了洋葱模型</p>
+<ul>
+<li>中间件代码必须调用 next() 方法, 后续中间件才会执行</li>
+<li>中断剩余中间件即不调用 next() 方法</li>
+<li>中间件调用 next() 方法之后, 会先执行后面的中间件最后再执行当前中间件的剩余代码</li>
+</ul>
 
                         <div id="giscus-container"></div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Golang/slice-growth-formula.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Golang/gin-next.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                             <a rel="next" href="../Notes/mdBook-and-Giscus.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
@@ -257,7 +261,7 @@ compose()
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Golang/slice-growth-formula.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Golang/gin-next.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                     <a rel="next" href="../Notes/mdBook-and-Giscus.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
