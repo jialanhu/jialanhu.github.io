@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Protocol Buffer - notes</title>
+        <title>Express 至 next 函数 - notes</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Golang</li><li class="chapter-item expanded "><a href="../Golang/slice-growth-formula.html"><strong aria-hidden="true">1.</strong> Golang slice 增长公式</a></li><li class="chapter-item expanded "><a href="../Golang/gin-next.html"><strong aria-hidden="true">2.</strong> Gin 之 next 函数</a></li><li class="chapter-item expanded affix "><li class="part-title">Node.JS</li><li class="chapter-item expanded "><a href="../Node.JS/koa-next.html"><strong aria-hidden="true">3.</strong> Koa 之 next 函数</a></li><li class="chapter-item expanded "><a href="../Node.JS/express-next.html"><strong aria-hidden="true">4.</strong> Express 至 next 函数</a></li><li class="chapter-item expanded affix "><li class="part-title">Notes</li><li class="chapter-item expanded "><a href="../Notes/mdBook-and-Giscus.html"><strong aria-hidden="true">5.</strong> mdBook 和 Giscus</a></li><li class="chapter-item expanded "><a href="../Notes/protocol-buffer.html" class="active"><strong aria-hidden="true">6.</strong> Protocol Buffer</a></li><li class="chapter-item expanded "><a href="../Notes/ZigZag.html"><strong aria-hidden="true">7.</strong> ZigZag</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Golang</li><li class="chapter-item expanded "><a href="../Golang/slice-growth-formula.html"><strong aria-hidden="true">1.</strong> Golang slice 增长公式</a></li><li class="chapter-item expanded "><a href="../Golang/gin-next.html"><strong aria-hidden="true">2.</strong> Gin 之 next 函数</a></li><li class="chapter-item expanded affix "><li class="part-title">Node.JS</li><li class="chapter-item expanded "><a href="../Node.JS/koa-next.html"><strong aria-hidden="true">3.</strong> Koa 之 next 函数</a></li><li class="chapter-item expanded "><a href="../Node.JS/express-next.html" class="active"><strong aria-hidden="true">4.</strong> Express 至 next 函数</a></li><li class="chapter-item expanded affix "><li class="part-title">Notes</li><li class="chapter-item expanded "><a href="../Notes/mdBook-and-Giscus.html"><strong aria-hidden="true">5.</strong> mdBook 和 Giscus</a></li><li class="chapter-item expanded "><a href="../Notes/protocol-buffer.html"><strong aria-hidden="true">6.</strong> Protocol Buffer</a></li><li class="chapter-item expanded "><a href="../Notes/ZigZag.html"><strong aria-hidden="true">7.</strong> ZigZag</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -137,98 +137,203 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="protocol-buffer"><a class="header" href="#protocol-buffer">Protocol Buffer</a></h1>
-<p>Protocol Buffer, 简称 ProtoBuf<br />
-由 Google 开发，是一种开源跨平台的序列化协议</p>
-<h2 id="proto2-diff-proto3"><a class="header" href="#proto2-diff-proto3">Proto2 Diff Proto3</a></h2>
-<p>Proto3是Proto2的简化版本</p>
-<h3 id="默认值"><a class="header" href="#默认值">默认值</a></h3>
-<p>Proto3不允许自定义默认值, 在Proto3中的所有字段都具有一致的零默认值</p>
-<h3 id="必填字段"><a class="header" href="#必填字段">必填字段</a></h3>
-<p>Proto3删除了<code>required</code>字段的支持</p>
-<h2 id="编码"><a class="header" href="#编码">编码</a></h2>
-<h3 id="varints"><a class="header" href="#varints">varints</a></h3>
-<p>可变宽整数, 使用 1 到 10个字节之间的长度对无符号64位整数进行编码，较小的值可以使用较少的字节</p>
-<p>在varint中，每个字节都有一个标志位，表示它后面的字节是否时varint的一部分<br />
-这个字节是MSB(Most Significant Bit / 最高有效位), 低 7 位是有效载荷</p>
-<pre><code class="language-go">0000 0001
-^ msb
+                        <h2 id="express-中的-next"><a class="header" href="#express-中的-next">Express 中的 next</a></h2>
+<pre><code class="language-js">const app = require(&quot;express&quot;)()
 
-1000 0011 0000 0001 // 131
-^ msb     ^ msb
+app.use((req, res, next) =&gt; {
+  console.log(1);
+  next();
+  console.log(6);
+})
+
+app.use((req, res, next) =&gt; {
+  console.log(2);
+  next();
+  console.log(5);
+})
+
+app.use((req, res, next) =&gt; {
+  console.log(3);
+  next();
+  console.log(4);
+})
+
+app.use((req, res, next) =&gt; {
+  res.send('Hello Express');
+});
+
+app.listen(3000);
+// 输出 1 2 3 4 5 6
 </code></pre>
-<p>那么是如何得出是 131 的呢</p>
-<pre><code class="language-go">1000 0011 0000 0001 // 原始输入
- 000 0011  000 0001 // 去除MSB
- 000 0001  000 0011 // 按小端排列
- 10000011           // 连接
- 128 + 2 + 1 = 131  // 解释为十进制
+<h3 id="注册"><a class="header" href="#注册">注册</a></h3>
+<p>Express 中使用 use 函数注册中间件, 并按照注册顺序调用<br />
+最终会调用 <a href="https://github.com/expressjs/express/blob/8368dc178af16b91b576c4c1d135f701a0007e5d/lib/router/index.js#L439">lib/router/index.js use</a> 函数
+最终会 new 一个 Layer 并放入 stack 队列中</p>
+<pre><code class="language-js">proto.use = function use(fn) {
+  ...
+  var layer = new Layer(path, {
+    sensitive: this.caseSensitive,
+    strict: false,
+    end: false
+  }, fn);
+
+  layer.route = undefined;
+  this.stack.push(layer);
+  ...
+}
 </code></pre>
-<h3 id="字段编号和类型"><a class="header" href="#字段编号和类型">字段编号和类型</a></h3>
-<p>当对消息进行编码时，每个键值对会变为一个记录<br />
-其中包含字段编号(field number 简称 fn)、类型(wire type 简称 wt)和有效负载<br />
-其中字段编号和类型 使用 varint 格式编码, 最低三位表示类型</p>
-<div class="table-wrapper"><table><thead><tr><th>Wire Type</th><th>解析</th><th>对应数据类型</th></tr></thead><tbody>
-<tr><td>0</td><td>varint 变长整型</td><td>int32, int64, uint32, uint64, sint32, sint64, bool, enum</td></tr>
-<tr><td>1</td><td>固定8字节</td><td>fixed64, sfixed64, double</td></tr>
-<tr><td>2</td><td>后面需要跟随一个长度</td><td>string, bytes, required字段, 嵌套类型</td></tr>
-<tr><td>3</td><td>废弃</td><td></td></tr>
-<tr><td>4</td><td>废弃</td><td></td></tr>
-<tr><td>5</td><td>固定4字节</td><td>fixed32, sfixed32, float</td></tr>
-</tbody></table>
-</div>
-<pre><code class="language-go">// 消息定义
-message example {
-  int32 i32 = 1;
-  fixed64 f64 = 2;
-  string str = 3;
-  sint32 s32 = 4;
+<h3 id="调用"><a class="header" href="#调用">调用</a></h3>
+<p>在收到请求时的处理在 <a href="https://github.com/expressjs/express/blob/8368dc178af16b91b576c4c1d135f701a0007e5d/lib/router/index.js#L136">lib/router/index.js handle</a><br />
+然后在 handle 函数中定义了 next 函数<br />
+然后执行 next 函数去到  <a href="https://github.com/expressjs/express/blob/8368dc178a/lib/router/layer.js#L86">lib/router/layer.js handle_request</a> 函数</p>
+<pre><code class="language-js">// lib/router/index.js handle 极度简化了代码
+proto.handle = function handle(req, res, out) {
+  ...
+  idx = 0
+  stack = this.stack
+
+  next()
+
+  function next(err) {
+    ...
+    if (idx &gt;= stack.length) {
+      return;
+    }
+    ...
+    layer = stack[idx++]
+    ...
+    if (err) {
+      layer.handle_error(err, req, res, next);
+    } else {
+      layer.handle_request(req, res, next);
+    }
+  }
+  ...
+}
+</code></pre>
+<pre><code class="language-js">Layer.prototype.handle_error = function handle_error(error, req, res, next) {
+  var fn = this.handle;
+
+  if (fn.length !== 4) {
+    // not a standard error handler
+    return next(error);
+  }
+
+  try {
+    fn(error, req, res, next);
+  } catch (err) {
+    next(err);
+  }
+};
+
+Layer.prototype.handle_request = function handle(req, res, next) {
+  var fn = this.handle;
+
+  if (fn.length &gt; 3) {
+    // not a standard request handler
+    return next();
+  }
+
+  try {
+    fn(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+};
+</code></pre>
+<p>从上面的 handle 可以看出, 通过 next 的嵌套调用实现中间件的调用<br />
+即调用 next 就会调用下一个中间件, 但相比 Koa 它并不支持 Promise<br />
+并且使用 try catch 捕捉了错误, 通过 next 进行传播, 所以错误中间件必须在最后注册</p>
+<h3 id="简化版本"><a class="header" href="#简化版本">简化版本</a></h3>
+<pre><code class="language-js">const stack = [];
+
+function use(fn) {
+    stack.push(new Layer(fn));
 }
 
-// 假设序列化时的对象信息
-{
-  i32: 257,
-  f64: 1,
-  s32: -2,
-  b: Buffer.from([0xaa, 0xbb, 0xcc, 0xdd]),
+function handle() {
+    let idx = 0;
+    
+    next()
+
+    function next(err) {
+        if (idx &gt;= stack.length) {
+            return;
+        }
+        const layer = stack[idx++]
+        if (err) {
+            layer.handle_error(err, next)
+        } else {
+            layer.handle_request(next)
+        }
+    }
 }
-//编码后 &lt;Buffer 08 81 02 11 01 00 00 00 00 00 00 00 1a 04 aa bb cc dd 20 03&gt;
+function Layer(fn) {
+    this.handle = fn
+}
+Layer.prototype.handle_error = function (err, next) {
+    const fn = this.handle
+    if (fn.length !== 2) return next(err) // 跳过不是错误处理的中间件
+    try {
+        fn(err, next)
+    } catch (err) {
+        next(err)
+    }
+}
+
+Layer.prototype.handle_request = function (next) {
+    const fn = this.handle
+    if (fn.length &gt; 1) return next() // 跳过错误处理的中间件
+    try {
+        fn(next)
+    } catch (err) {
+        next(err)
+    }
+}
+
+
+use((next) =&gt; {
+    console.log(1);
+    next();
+    console.log(6);
+})
+use((next) =&gt; {
+    console.log(2);
+    next();
+    console.log(5);
+})
+use((next) =&gt; {
+    console.log(3);
+    next();
+    console.log(4);
+})
+use((next) =&gt; {
+    throw new Error(&quot;some err&quot;);
+})
+use((err, next) =&gt; {
+    console.log(err.message)
+})
+handle()
+/**
+ * 输出
+ * 1
+ * 2
+ * 3
+ * some err
+ * 4
+ * 5
+ * 6
+ **/
+
 </code></pre>
-<p>首先分析第一个字节 0x08 二进制 0000 1000<br />
-去除MSB, 000 1000<br />
-后三位表示类型 wt = 000 = 0, 表示数据类型为变长整形<br />
-剩余字段表示字段编号 fn = 0001 = 1</p>
-<p>第二个字节 0x81 =&gt; 1000 0001<br />
-MSB为1, 表示后面的数据是其的一部分<br />
-第三字节 0x02 =&gt; 0000 0010<br />
-MSB为0, 表示是数据最后一个字节<br />
-按照小端排列并连接起来得到<br />
-000 0010 000 0001 =&gt; 257</p>
-<p>即前三个字节表示, 字段编号1, 数据类型为变长整形<br />
-对应到消息定义的类型为int32, 对应数据为 257</p>
-<p>接着分析第四个字节 0x11 =&gt; 0001 0001<br />
-fn = 2, wt = 1<br />
-即有效载荷为 01 00 00 00 00 00 00 00<br />
-根据小端排序后 00 00 00 00 00 00 00 01<br />
-对应到消息定义的类型为fixed64, 对应数据为 1</p>
-<p>接着分析第十三个字节 0x1a =&gt; 0001 1010<br />
-fn = 3, wt = 2<br />
-当 wt = 2 时, 后面紧跟一个 varint 编码的数值表示有效载荷的长度<br />
-第十四字节 0x04 , 表示后面的有效载荷的长度为4, 为 0xaa, 0xbb, 0xcc, 0xdd</p>
-<p>接着分析第十九个字节 0x20 =&gt; 0010 0000<br />
-fn = 4, wt = 0<br />
-第二十个字节为 0x03 =&gt; 0000 0011<br />
-对应到消息定义的类型为s32, <code>sintN</code>使用了<a href="./ZigZag.html">ZigZag</a>编码，而不是二进制补码的来编码负整数</p>
-<h1 id="总结"><a class="header" href="#总结">总结</a></h1>
+<h2 id="结论"><a class="header" href="#结论">结论</a></h2>
 <ul>
-<li>当小负数时应该选择 sint32, sint64 相比 int32 和 int64 在负数时更具效率, 因为使用了 ZigZag 编码</li>
-<li>当数字大于 2^56 那么定长8字节的 fixed64 比 uint64 更高效, 因为 uint64 每个字节只有7位有效负荷</li>
-<li>当数字大于 2^28 那么定长4字节的 fixed32 比 uint32 更高效, 原因一样</li>
-</ul>
-<h1 id="参考资料"><a class="header" href="#参考资料">参考资料</a></h1>
-<ul>
-<li><a href="https://www.hackingnote.com/en/versus/proto2-vs-proto3">Proto2 vs Proto3</a></li>
-<li><a href="https://developers.google.com/protocol-buffers/docs/encoding">Protocol Buffer Encoding</a></li>
+<li>中间件代码中必须调用 next() 方法, 后续中间件才会执行</li>
+<li>中断剩余中间件代码只要不调用 next() 方法即可</li>
+<li>普通中间件参数不能大于3个, 错误处理中间件参数只能是4个, 否则将不会被调用</li>
+<li>错误处理中间件必须要排在普通中间件的后面</li>
+<li>中间件不支持 Promise</li>
+<li>中间件调用 next() 方法之后, 会先执行后面的中间件最后再执行当前中间件的剩余代码, 即使是在中间件抛出错误时也一样</li>
 </ul>
 
                         <div id="giscus-container"></div>
@@ -236,10 +341,10 @@ fn = 4, wt = 0<br />
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../Notes/mdBook-and-Giscus.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../Node.JS/koa-next.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
-                            <a rel="next" href="../Notes/ZigZag.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../Notes/mdBook-and-Giscus.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
@@ -248,10 +353,10 @@ fn = 4, wt = 0<br />
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../Notes/mdBook-and-Giscus.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Node.JS/koa-next.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
-                    <a rel="next" href="../Notes/ZigZag.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../Notes/mdBook-and-Giscus.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
