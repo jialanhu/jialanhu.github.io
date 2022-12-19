@@ -167,7 +167,7 @@ app.listen(3000);
 </code></pre>
 <h3 id="注册"><a class="header" href="#注册">注册</a></h3>
 <p>Express 中使用 use 函数注册中间件, 并按照注册顺序调用<br />
-最终会调用 <a href="https://github.com/expressjs/express/blob/8368dc178af16b91b576c4c1d135f701a0007e5d/lib/router/index.js#L439">lib/router/index.js use</a> 函数
+注册时最终会调用 <a href="https://github.com/expressjs/express/blob/8368dc178af16b91b576c4c1d135f701a0007e5d/lib/router/index.js#L439">lib/router/index.js use</a> 函数
 最终会 new 一个 Layer 并放入 stack 队列中</p>
 <pre><code class="language-js">proto.use = function use(fn) {
   ...
@@ -185,7 +185,7 @@ app.listen(3000);
 <h3 id="调用"><a class="header" href="#调用">调用</a></h3>
 <p>在收到请求时的处理在 <a href="https://github.com/expressjs/express/blob/8368dc178af16b91b576c4c1d135f701a0007e5d/lib/router/index.js#L136">lib/router/index.js handle</a><br />
 然后在 handle 函数中定义了 next 函数<br />
-然后执行 next 函数去到  <a href="https://github.com/expressjs/express/blob/8368dc178a/lib/router/layer.js#L86">lib/router/layer.js handle_request</a> 函数</p>
+然后执行 next 函数去到 <code>lib/router/layer.js</code> 的 <a href="https://github.com/expressjs/express/blob/8368dc178a/lib/router/layer.js#L86">handle_request</a> 函数或者 <a href="https://github.com/expressjs/express/blob/8368dc178a/lib/router/layer.js#L62">handle_error</a> 函数</p>
 <pre><code class="language-js">// lib/router/index.js handle 极度简化了代码
 proto.handle = function handle(req, res, out) {
   ...
