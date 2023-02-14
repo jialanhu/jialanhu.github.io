@@ -4,7 +4,7 @@ const giscus = function () {
   script.src = "https://giscus.app/client.js";
   
   
-  script.setAttribute("data-repo", "sakaketsukihana/sakaketsukihana.github.io");
+  script.setAttribute("data-repo", "jialanhu/jialanhu.github.io");
   script.setAttribute("data-repo-id", "R_kgDOIYyBMQ");
   script.setAttribute("data-category", "Q&A");
   script.setAttribute("data-category-id", "DIC_kwDOIYyBMc4CSap1");
